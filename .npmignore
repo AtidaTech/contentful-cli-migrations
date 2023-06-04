@@ -1,0 +1,12 @@
+build/*
+node_modules/*
+export*
+export/
+export/*
+migrations/
+migrations/*
+.env
+.env*
+test.js
+test*.js
+.DS_Store
