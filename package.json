@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "async": "^3.2.2",
-    "contentful-export": ">=7.18.7",
     "contentful-lib-helpers": ">=0.1.10",
     "contentful-management": ">7.50.0",
     "contentful-migration": "^4.9.4",
