@@ -50,10 +50,6 @@ const DEFAULT_FIRST_MIGRATION = '0001-create-counter-content-type.cjs'
       latestMigrationNumber,
       migrationArray
     )
-
-    if (parsedArguments?.shouldInitialise) {
-      await createCounterEntry(environmentSingleton)
-    }
   } catch (error) {
     console.error('@@/ERROR:', error)
   }
@@ -447,7 +443,9 @@ async function parseMigrationsToRun(parsedArguments, latestMigrationNumber) {
   const fileSystem = await import('fs')
   const folderMigrationScript = parsedArguments?.rootDestinationFolder
 
-  let files = fileSystem.readdirSync(folderMigrationScript)
+  const allFiles = fileSystem.readdirSync(folderMigrationScript)
+  const files = allFiles.filter(item => !/(^|\/)\.[^/.]/g.test(item))
+
   let migrationArray = []
   let indexObject = []
   let arrayLength = files.length
@@ -558,24 +556,28 @@ async function performMigrations(
         .then(async () => {
           console.log('##/INFO: Migration ' + migrationScript + ' Done!')
 
-          // Update counter value
-          latestMigrationNumber++
+          if (!parsedArguments?.shouldInitialise) {
+            // Update counter value
+            latestMigrationNumber++
 
-          // Write new Count into Entry
-          const fieldId = parsedArguments?.counterFieldId
-          const fieldLocale = parsedArguments?.counterLocale
-          const entrySavingCounter = await environmentSingleton.getEntry(
-            parsedArguments?.counterEntryId
-          )
+            // Write new Count into Entry
+            const fieldId = parsedArguments?.counterFieldId
+            const fieldLocale = parsedArguments?.counterLocale
+            const entrySavingCounter = await environmentSingleton.getEntry(
+              parsedArguments?.counterEntryId
+            )
 
-          entrySavingCounter.fields[fieldId][
-            fieldLocale
-          ] = `${latestMigrationNumber}`
+            entrySavingCounter.fields[fieldId][
+              fieldLocale
+            ] = `${latestMigrationNumber}`
 
-          entrySavingCounter
-            .update()
-            .then(callback())
-            .catch(e => console.error('@@/ERROR: ' + e))
+            entrySavingCounter
+              .update()
+              .then(callback())
+              .catch(e => console.error('@@/ERROR: ' + e))
+          } else {
+            await createCounterEntry(environmentSingleton)
+          }
         })
         .catch(e =>
           console.error(
