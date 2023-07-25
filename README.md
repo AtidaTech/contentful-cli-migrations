@@ -9,11 +9,13 @@
 
 Contentful CLI Migrations is a JavaScript open-source library for automating Contentful migrations. It provides a convenient way to manage and apply migrations to your Contentful space using the command line.
 
+> Note: This is NOT the official Contentful Migration tool, but it's based on it. That can be found on [GitHub 🔗](https://github.com/contentful/contentful-migration) or [NpmJS 🔗](https://www.npmjs.com/package/contentful-migration)
+
 <h3>Sponsored by <a href="https://github.com/AtidaTech"><b>Atida</b> <img src="https://avatars.githubusercontent.com/u/127305035?s=200&v=4" width="14px;" alt="Atida" /></a></h3>
 
 <hr />
 
-[✨ Features](#-features) · [💡 Installation](#-installation) · [📟 Example](#-example) · [🎹 Usage](#-usage) · [📅ToDo](#-todo) · [👾Contributors](#-contributors) · [🎩Acknowledgments](#-acknowledgements) · [📄License](#-license)
+[✨ Features](#-features) · [💡 Installation](#-installation) · [📟 Example](#-example) · [🎹 Usage](#-usage) · [🐦 Write Migrations](#-write-migrations) · [📅 ToDo](#-todo) · [👾 Contributors](#-contributors) · [🎩 Acknowledgments](#-acknowledgements) · [📄License](#-license)
 
 <hr />
 
@@ -110,6 +112,15 @@ This script can be used from the command line and accepts various arguments for 
 * `--counter-field`: The ID of the field in the counter entry that stores the actual migration counter. Example: `title`.
 * `--counter-locale`: The locale used to retrieve the migration counter from the field. Default: `en-US`
 * `--force-yes`: The script runs a migration at a time, asking you to confirm it manually (Y/N). In a CD/CI pipeline, you will need to set up `--force-yes` so that all migrations will run without any request for interaction.
+
+## 🐦 Write migrations
+
+Add here how to write migrations with:
+* async/await
+* getAllLocalesCode, getDefaultLocaleCode and getDefaultValuesForLocales
+* `{ makeRequest }` - See also: https://github.com/contentful/contentful-migration/blob/master/README.md
+* how to transform Entries (`transformEntriesPerLocale`)
+* Create environment `xxx-dev` to modify manually your content-type, and use the JSON to write the migration. Then create a `xxx-test` environment to test your migration before committing it.
 
 ## 📅 Todo
 
