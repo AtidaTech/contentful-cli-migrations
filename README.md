@@ -115,12 +115,7 @@ This script can be used from the command line and accepts various arguments for 
 
 ## 🐦 Write migrations
 
-Add here how to write migrations with:
-* async/await
-* getAllLocalesCode, getDefaultLocaleCode and getDefaultValuesForLocales
-* `{ makeRequest }` - See also: https://github.com/contentful/contentful-migration/blob/master/README.md
-* how to transform Entries (`transformEntriesPerLocale`)
-* Create environment `xxx-dev` to modify manually your content-type, and use the JSON to write the migration. Then create a `xxx-test` environment to test your migration before committing it.
+There are some guidelines and some few tricks that can be implemented when writing a Contentful migration. For more info, look at the separate documentation on [How to Write Migrations](README-migrations.md).
 
 ## 📅 Todo
 
