@@ -15,7 +15,7 @@ Contentful CLI Migrations is a JavaScript open-source library for automating Con
 
 <hr />
 
-[✨ Features](#-features) · [💡 Installation](#-installation) · [📟 Example](#-example) · [🎹 Usage](#-usage) · [🐦 Write Migrations](#-write-migrations) · [📅 ToDo](#-todo) · [👾 Contributors](#-contributors) · [🎩 Acknowledgments](#-acknowledgements) · [📄License](#-license)
+[✨ Features](#-features) · [💡 Installation](#-installation) · [📟 Example](#-example) · [🎹 Usage](#-usage) · [🐦 Write Migrations](#-write-migrations) · [📅 ToDo](#-todo) · [👾 Contributors](#-contributors) · [🎩 Acknowledgments](#-acknowledgements) · [📄 License](#-license)
 
 <hr />
 
@@ -48,11 +48,11 @@ yarn add contentful-cli-migrations
 
 ### Requirements
 
-* `node` >= 14.0.0
-* `npm` >= 8.5.5
+* `node` >= 16.0.0
+* `npm` >= 8.19.4
 * `contentful-management` >= 7.50.0
 * `contentful-migration` ^4.9.4
-* [contentful-lib-helpers](https://www.npmjs.com/package/contentful-lib-helpers) >= 0.1.10
+* [contentful-lib-helpers](https://www.npmjs.com/package/contentful-lib-helpers) >= 0.2.0
 
 
 ### Set-up
