@@ -51,7 +51,7 @@ resulting JSON structure can be easily ported to the Javascript syntax of the mi
 like:
 
 <details>
-    <summary>JSON object of the new Content-type</summary>
+    <summary><code>JSON object of the new Content-type</code></summary>
 
 ```json
 {
@@ -155,7 +155,7 @@ As we can see when we will start scripting the migration, the field names, value
 needs to be defined with the Javascript syntax. Let's first add the content-type data and the basic migration structure:
 
 <details>
-    <summary>0027-Add-Blog-Post.cjs</summary>
+    <summary><code>0027-Add-Blog-Post.cjs</code></summary>
 
 ```js
 module.exports = async function (migration, context) {
@@ -241,15 +241,15 @@ module.exports = async function (migration, context) {
 ```
 </details>
 
-Now we have our migration, but we don't know if it works correctly or will perform the expected modification. Meanwhile,
+Now we have our migration, but we don't know if it works correctly or will perform the expected modifications. Meanwhile
 linters can help with the syntax and general validity of the Javascript code, it's always good to test the migration 
 itself in a new 'clean' Environment, so that we can be sure the automation during deployment will go without problems.
-To do that, let's duplicate a new Environment from the original source Environment. Just create a duplicate of 'dev' and
-call it `0027-test`. This also allows use to tune the Content-type in the other `0027-dev` Environment, and adjust the
+To do that, let's duplicate a new Environment from the original source Environment. Just create a duplicate of `dev` and
+call it `0027-test`. This also allows us to tune the Content-type in the other `0027-dev` Environment, and adjust the
 migration till we are satisfied (we can always delete and recreate the `0027-test` Environment, since its sole purpose
 is to validate the migration runs smoothly).
 
-Create a file `0027-Add-Blog-Post.cjs` under the folder `migrations/scripts` of your project and then run:
+Create a file `0027-Add-Blog-Post.cjs` under the folder `./migrations/scripts` of your project and then run:
 
 ```shell
 $ npx contentful-cli-migrations --to 0027-test
@@ -258,7 +258,7 @@ $ npx contentful-cli-migrations --to 0027-test
 You should see the following output:
 
 ```shell
-##/INFO: Applying migrations to environment-id: dev
+##/INFO: Applying migrations to environment-id: 0027-test
 ##/INFO: Latest migration successfully run # 26
 The following migration has been planned
 
@@ -316,18 +316,29 @@ By pressing the `Y` to confirm, we can see the migration being applied:
 ```
 
 The migration is now safe to be committed alongside other code of your work. Once the commit is pushed, you can safely
-remove both the `0027-dev` and `0027-test` Environments.
+remove both the `0027-dev` and `0027-test` Environments from Contentful.
 
 ## async/await
 
+A thing you might have noticed in the migration script example, is that the function is defined as `async`.
 
-## makeRequest
+```javascript
+module.exports = async function (migration, context) {
+    ...
+}
+```
 
-* `{ makeRequest }` - See also: https://github.com/contentful/contentful-migration/blob/master/README.md#context
+Meanwhile for most of the use cases with or without async doesn't really matter, it is a good practice to define the 
+function as `async` when using this tool, since the call to the scripts are all performed using `await`. In addition,
+using `async` allows to include other functions, and be sure that everything is executed correctly.
 
 ## transformEntries
 
 * how to transform Entries (`transformEntriesPerLocale`)
+
+## makeRequest
+
+* `{ makeRequest }` - See also: https://github.com/contentful/contentful-migration/blob/master/README.md#context
 
 ## Locale-agnostic migrations
 
