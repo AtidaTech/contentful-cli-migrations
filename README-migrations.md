@@ -328,13 +328,88 @@ module.exports = async function (migration, context) {
 }
 ```
 
-Meanwhile for most of the use cases with or without async doesn't really matter, it is a good practice to define the 
+Meanwhile, for most of the use cases with or without async doesn't really matter, it is a good practice to define the 
 function as `async` when using this tool, since the call to the scripts are all performed using `await`. In addition,
 using `async` allows to include other functions, and be sure that everything is executed correctly.
 
 ## transformEntries
 
-* how to transform Entries (`transformEntriesPerLocale`)
+Even though is documented, a 'function' of Contentful Migrations that is often overlooked is `transformEntries`. The 
+reason to say such a thing, is because this function is pretty powerful and not only can help to transform a text field
+to a reference field (as many examples show with 'Blog Post Author' example), but it unlocks the possibility to 
+manipulate data, till a certain degree, in a migration that is usually/mostly supposed to change the structure.
+
+Let's take a real case and assume, you changed the validation for a certain 'id' field, like the slug of the previously 
+created blog post (that has no validation on the input characters), or a product id. Changing the validation might be 
+needed to avoid that the Editors will input some weird characters that could create problems down the line. For example 
+a slug, once is used to build a full URI, could simply be invalid or wrongly formatted.
+
+In this case we should use one migration to change the existing data first, and then change the validation, so that we 
+won't have problem during the migration itself (it could fail if the old data is now then considered invalid). Changing 
+the existing data will also ensure that if we modify an older entry, we will not be blocked by the invalid id (or slug) 
+to republish the updated entry.
+
+<details>
+    <summary><code>0043-Add-Validation-to-Slug-in-BlogPost.cjs</code></summary>
+
+```js
+module.exports = async function (migration, context) {
+    migration.transformEntries({
+        contentType: 'blogPost',
+        from: ['slug'],
+        to: ['slug'],
+        // This loops in the field slug for each locale that might be present
+        transformEntryForLocale: function (fromFields, currentLocale) {
+            // We want to be sure a value is set-up for the slug
+            if (
+                fromFields !== undefined &&
+                fromFields['slug'] !== undefined &&
+                fromFields['slug'][currentLocale] !== undefined
+            ) {
+                // Intial values
+                let originalSlug = fromFields['slug'][currentLocale]
+                let cleanedSlug = ''
+
+                // It removes anything that is not lowercase letter, numbers and dashes
+                cleanedSlug = originalSlug.toLowerCase().replace(/[^a-z0-9-]+/, '')
+                
+                // We assign the cleaned up slug to the field
+                return {
+                    slug: cleanedSlug
+                }
+            }
+        }
+    })
+
+    const blogPost = migration.editContentType('blogPost')
+
+    blogPost.editField('slug').validations([
+        {
+            // We maintain the unique 'true'
+            unique: true
+        },
+        {
+            // We add the regular expression for valid characters
+            regexp: {
+                pattern: '^[a-z0-9\\-]*$',
+                flags: 'g'
+            },
+            message:
+                'The ID only allows: lowercase letters, numbers and dashes'
+        }
+    ])
+}
+
+```
+</details>
+
+As any powerful functionality, it surely should be used with responsibility, and it should be tested extensively, the 
+more important is the data for your business (that's why using also the 
+[Contentful CLI Export](https://www.npmjs.com/package/contentful-cli-export) to make backups is always a good idea).
+
+In addition, using the `transformEntries` with the two other 'tricks' we are going to explain (makeRequest and Locales), 
+represents a somehow practical, repeatable and even cheaper alternative to writing your own script everytime some strong
+data manipulation is needed.
 
 ## makeRequest
 

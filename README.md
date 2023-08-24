@@ -150,3 +150,11 @@ Thank you to everyone involved!
 
 ## 📄 License
 This project is licensed under the [MIT License](LICENSE)
+
+# 📚 Other Scripts in the same collection
+
+We produce a bunch of interesting packages for Contentful. You might want to check them out:
+
+* **Contentful Lib Helpers**: on [GitHub](https://github.com/AtidaTech/contentful-lib-helpers/) and [NpmJS](https://www.npmjs.com/package/contentful-lib-helpers)
+* **Contentful CLI Export**: on [GitHub](https://github.com/AtidaTech/contentful-cli-export/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-export)
+* **Contentful CLI Migrations**: on [GitHub](https://github.com/AtidaTech/contentful-cli-migrations/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-migrations)
