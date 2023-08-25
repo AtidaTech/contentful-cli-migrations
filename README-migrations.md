@@ -35,7 +35,7 @@ really that can make the Environment name unique. Let's assume we arrived at mig
 set of modifications, we could call the Environment (duplicated from 'dev' or 'master') `0027-dev`. In this branch we
 could manually change, add, and remove Content-types till we are satisfied with the final result.
 
-Let's open you Contentful Web App (https://app.contentful.com/) and go to the tab 'Content model'. Once there click 
+Let's open the Contentful Web App (https://app.contentful.com/) and go to the tab 'Content model'. Once there click 
 on the blue button '+ Add content type'. We are going add a fictitious 'Blog Post' Content-type, just to show a relatable
 example. We then proceed to add some fields:
 
@@ -158,6 +158,13 @@ needs to be defined with the Javascript syntax. Let's first add the content-type
     <summary><code>0027-Add-Blog-Post.cjs</code></summary>
 
 ```js
+const {default: Migration, MigrationContext } = import("contentful-migration")
+
+/**
+ * @param {Migration} migration
+ * @param {MigrationContext} context
+ * @returns {Promise<void>}
+ */
 module.exports = async function (migration, context) {
     const blogPost = migration.createContentType('blogPost', {
         name: 'Blog Post',
@@ -323,14 +330,28 @@ remove both the `0027-dev` and `0027-test` Environments from Contentful.
 A thing you might have noticed in the migration script example, is that the function is defined as `async`.
 
 ```javascript
+const {default: Migration, MigrationContext } = import("contentful-migration")
+
+/**
+ * @param {Migration} migration
+ * @param {MigrationContext} context
+ * @returns {Promise<void>}
+ */
 module.exports = async function (migration, context) {
     ...
 }
 ```
 
-Meanwhile, for most of the use cases with or without async doesn't really matter, it is a good practice to define the 
+As for most of the use cases with or without async doesn't really matter, it's a good practice to define the 
 function as `async` when using this tool, since the call to the scripts are all performed using `await`. In addition,
-using `async` allows to include other functions, and be sure that everything is executed correctly.
+using `async` allows to include other functions, and be sure that everything is executed in the correct order.
+
+If you are still not convinced, you can read this article on [5 Reasons Why Javascript async/await wins over promises](https://dev.to/deadwin19/5-reasons-why-javascript-async-await-over-promises-1if3).
+
+Another thing to notice is adding the annotations to your migrations. In this way you will most likely unlock your 
+editor capabilities to help you autocomplete the different functions (like `createContentType`, `editContentType`, and 
+so on). If by chance your editor still doesn't want to show you any suggestion for the functions, you could separately 
+add the `contentful-migration` npm package in your package.json (it worked on IntelliJ editor).
 
 ## transformEntries
 
@@ -339,10 +360,10 @@ reason to say such a thing, is because this function is pretty powerful and not 
 to a reference field (as many examples show with 'Blog Post Author' example), but it unlocks the possibility to 
 manipulate data, till a certain degree, in a migration that is usually/mostly supposed to change the structure.
 
-Let's take a real case and assume, you changed the validation for a certain 'id' field, like the slug of the previously 
+Let's take a real case: you want to change the validation for a certain 'id' field, like the slug of the previously 
 created blog post (that has no validation on the input characters), or a product id. Changing the validation might be 
-needed to avoid that the Editors will input some weird characters that could create problems down the line. For example 
-a slug, once is used to build a full URI, could simply be invalid or wrongly formatted.
+needed to avoid that the Editors will input some weird characters that could create problems down the line. For example, 
+a slug, that is used to build a link, can result in a malformed URI.
 
 In this case we should use one migration to change the existing data first, and then change the validation, so that we 
 won't have problem during the migration itself (it could fail if the old data is now then considered invalid). Changing 
@@ -353,6 +374,13 @@ to republish the updated entry.
     <summary><code>0043-Add-Validation-to-Slug-in-BlogPost.cjs</code></summary>
 
 ```js
+const {default: Migration, MigrationContext } = import("contentful-migration")
+
+/**
+ * @param {Migration} migration
+ * @param {MigrationContext} context
+ * @returns {Promise<void>}
+ */
 module.exports = async function (migration, context) {
     migration.transformEntries({
         contentType: 'blogPost',
@@ -360,20 +388,20 @@ module.exports = async function (migration, context) {
         to: ['slug'],
         // This loops in the field slug for each locale that might be present
         transformEntryForLocale: function (fromFields, currentLocale) {
-            // We want to be sure a value is set-up for the slug
+            // We want to be sure a value is set up for the slug
             if (
                 fromFields !== undefined &&
                 fromFields['slug'] !== undefined &&
                 fromFields['slug'][currentLocale] !== undefined
             ) {
-                // Intial values
+                // Initial values
                 let originalSlug = fromFields['slug'][currentLocale]
                 let cleanedSlug = ''
 
                 // It removes anything that is not lowercase letter, numbers and dashes
                 cleanedSlug = originalSlug.toLowerCase().replace(/[^a-z0-9-]+/, '')
                 
-                // We assign the cleaned up slug to the field
+                // We assign the cleaned up slug back to the field
                 return {
                     slug: cleanedSlug
                 }
@@ -399,7 +427,6 @@ module.exports = async function (migration, context) {
         }
     ])
 }
-
 ```
 </details>
 
@@ -413,9 +440,144 @@ data manipulation is needed.
 
 ## makeRequest
 
-* `{ makeRequest }` - See also: https://github.com/contentful/contentful-migration/blob/master/README.md#context
+Another feature that is documented but is also very powerful and obscure is the 'context' that is usually passed
+when creating a migration:
+
+```js
+module.exports = async function (migration, context) {
+    ...
+}
+```
+
+`context` contains 3 important object, and per documentation the module.exports can be written like this:
+
+```js
+module.exports = async function (migration, { makeRequest, spaceId, accessToken }) {
+    ...
+}
+```
+
+Meanwhile `spaceId` and `accessToken` are quite easy to understand, respectively the spaceId on which we are performing
+the migration (useful if you want to specify a slightly different behaviour for that space), and accessToken is the 
+management accessToken that is executing the migration (We will see later how that can be used).
+
+But it's the first `makeRequest` object that is the most interesting one. `makeRequest` allows you to perform 
+Contentful Management API Calls inside the migration. 
+
+> Remember: With great power comes great responsibility! 🕷️
+
+Let's see an example of a makeRequest inside a migration:
+
+```js
+const {default: Migration, MigrationContext } = import("contentful-migration")
+
+/**
+ * @param {Migration} migration
+ * @param {MigrationContext} context
+ * @returns {Promise<void>}
+ */
+module.exports = async function (migration, { makeRequest, spaceId, accessToken }) {
+    await migration.transformEntries({
+        contentType: 'blogPost',
+        from: ['authour'],
+        to: ['authorName'],
+        transformEntryForLocale: async function (fromFields, currentLocale) {
+
+            ...
+
+            const refEntryId = fromFields?.author['en-US']?.sys?.id
+
+            if (refEntryId !== undefined) {
+                const refEntry = await makeRequest({
+                    method: 'GET',
+                    url: `/entries/${refEntryId}`
+                })
+            }
+
+            ...
+
+        }
+    })
+}
+```
+
+In this case, we would take a referencedEntry object, from its sys.id, and we would use that for some manipulation.
+In this example, it would work well inside `transforEntries`, to take the referenced object and extract the first 
+and last name of the author. 
+
+But the `makeRequest` doesn't stop there. It allows you to perform also editing or deleting Entries, and that can be 
+very dangerous. And it is somehow different from what we have seen before, for two reasons:
+
+1. Differently from the `transforEntries`, the request is a raw API call, hence it's not structured inside a method that
+   would work inside the framework. It does not have built-in fail over, error management or even basic checks.
+2. The API calls are performed **before** the migration runs. Especially if editing some data, this means that if we 
+   abort the migration (or it fails), the modified data will still remain modified. So that the edit/add values should 
+   always be some sort of idempotent action (like adding the full name to a new field from first or last name).
+
+See in details `{ makeRequest }`: https://github.com/contentful/contentful-migration/blob/master/README.md#context
+
+If you want to see the makeRequest in action, try this:
+
+<details>
+    <summary><code>0044-Test-makeRequest.cjs</code></summary>
+
+```js
+const {default: Migration, MigrationContext } = import("contentful-migration")
+
+/**
+ * @param {Migration} migration
+ * @param {MigrationContext} context
+ * @returns {Promise<void>}
+ */
+module.exports = async function (migration, { makeRequest, spaceId, accessToken }) {
+    const entryId = 'your-entry-id'
+    const result = await makeRequest({
+        method: 'GET',
+        url: `/entries/${entryId}`
+    })
+
+    console.log(result)
+}
+```
+
+</details>
 
 ## Locale-agnostic migrations
 
 * getAllLocalesCode, getDefaultLocaleCode and getDefaultValuesForLocales
+ 
+<details>
+    <summary>Example Migration</summary>
 
+```js
+const {default: Migration, MigrationContext } = import("contentful-migration")
+
+/**
+ * @param {Migration} migration
+ * @param {MigrationContext} context
+ * @returns {Promise<void>}
+ */
+module.exports = async function (migration, { spaceId, environmentId, accessToken }) {
+    console.log(await getDefaultLocale(spaceId, environmentId, accessToken))
+}
+
+async function getDefaultLocale(spaceId, environmentId, accessToken) {
+    const ctManagement = await import('contentful-management')
+    const contentfulManagement = ctManagement?.default === undefined ? ctManagement : ctManagement?.default
+
+    const fnGetEnvironment =
+        await import('contentful-lib-helpers/lib/getEnvironment.js')
+    const environment = await fnGetEnvironment.getEnvironment(
+        contentfulManagement,
+        accessToken,
+        spaceId,
+        environmentId
+    )
+
+    const fnGetDefaultLocaleCode =
+        await import('contentful-lib-helpers/lib/locales/getDefaultLocaleCode.js')
+
+    return await fnGetDefaultLocaleCode.getDefaultLocaleCode(environment)
+}
+```
+</details>
