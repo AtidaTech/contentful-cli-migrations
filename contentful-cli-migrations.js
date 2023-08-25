@@ -67,7 +67,6 @@ const DEFAULT_FIRST_MIGRATION = '0001-create-counter-content-type.cjs'
  * @property {string} CMS_MIGRATIONS_COUNTER_ID - The entry-id used for the counter
  * @property {string} CMS_MIGRATIONS_COUNTER_FIELD - The field in that entry that will store the actual counter
  * @property {string} CMS_MIGRATIONS_COUNTER_LOCALE - The locale to look for in that field
- *
  */
 async function getEnvValues(localWorkingDir, scriptDirectory) {
   const fileSystem = await import('fs')
@@ -253,6 +252,7 @@ async function getDirNamePath() {
 }
 
 /**
+ * Create a First Migration if empty Space
  *
  * @param {Object} parsedArguments
  * @property {string} managementToken - The CMS Management Token.
@@ -307,6 +307,7 @@ async function createFirstMigration(parsedArguments) {
 }
 
 /**
+ * Create a Counter entry if missing
  *
  * @param {import("contentful-management/dist/typings/entities/environment").Environment} environmentSingleton - The Contentful environment object.
  * @return {Promise<void>}
