@@ -15,7 +15,7 @@ Contentful CLI Migrations is a JavaScript open-source library for automating Con
 
 <hr />
 
-[✨ Features](#-features) · [💡 Installation](#-installation) · [📟 Example](#-example) · [🎹 Usage](#-usage) · [🐦 Write Migrations](#-write-migrations) · [📅 ToDo](#-todo) · [👾 Contributors](#-contributors) · [🎩 Acknowledgments](#-acknowledgements) · [📄 License](#-license)
+[✨ Features](#-features) · [💡 Installation](#-installation) · [📟 Example](#-example) · [🎹 Usage](#-usage) · [🐦 Write Migrations](#-write-migrations) · [📅 ToDo](#-todo) · [👾 Contributors](#-contributors) · [🎩 Acknowledgments](#-acknowledgements) · [📚 Collection](#-other-scripts-in-the-same-collection) · [📄 License](#-license)
 
 <hr />
 
@@ -148,13 +148,16 @@ I would like to express my gratitude to the following parties:
 
 Thank you to everyone involved!
 
-## 📄 License
-This project is licensed under the [MIT License](LICENSE)
-
 # 📚 Other Scripts in the same collection
 
 We produce a bunch of interesting packages for Contentful. You might want to check them out:
 
-* **Contentful Lib Helpers**: on [GitHub](https://github.com/AtidaTech/contentful-lib-helpers/) and [NpmJS](https://www.npmjs.com/package/contentful-lib-helpers)
-* **Contentful CLI Export**: on [GitHub](https://github.com/AtidaTech/contentful-cli-export/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-export)
-* **Contentful CLI Migrations**: on [GitHub](https://github.com/AtidaTech/contentful-cli-migrations/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-migrations)
+* **Contentful Lib Helpers** ([GitHub](https://github.com/AtidaTech/contentful-lib-helpers/) and [NpmJS](https://www.npmjs.com/package/contentful-lib-helpers)): Utility Library for Contentful CMS.
+* **Contentful CLI Export** ([GitHub](https://github.com/AtidaTech/contentful-cli-export/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-export)): Simplifies making Backup of your Environment. 
+* **Contentful CLI Migrations** ([GitHub](https://github.com/AtidaTech/contentful-cli-migrations/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-migrations)): Automating Contentful Migrations.
+* **Contentful CLI Release** ([GitHub](https://github.com/AtidaTech/contentful-cli-release/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-release)): Easy Environments sync at deployment.
+* **Contentful CLI Sync** ([GitHub](https://github.com/AtidaTech/contentful-cli-sync/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-sync)): Contentful tool to sync data across Spaces and Environments .
+
+
+# 📄 License
+This project is licensed under the [MIT License](LICENSE)
