@@ -148,7 +148,7 @@ I would like to express my gratitude to the following parties:
 
 Thank you to everyone involved!
 
-# 📚 Other Scripts in the same collection
+## 📚 Other Scripts in the same collection
 
 We produce a bunch of interesting packages for Contentful. You might want to check them out:
 
@@ -158,5 +158,5 @@ We produce a bunch of interesting packages for Contentful. You might want to che
 * **Contentful CLI Release** ([GitHub](https://github.com/AtidaTech/contentful-cli-release/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-release)): Easy Environments sync at deployment.
 * **Contentful CLI Sync** ([GitHub](https://github.com/AtidaTech/contentful-cli-sync/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-sync)): Contentful tool to sync data across Spaces and Environments.
 
-# 📄 License
+## 📄 License
 This project is licensed under the [MIT License](LICENSE)
