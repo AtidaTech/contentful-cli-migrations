@@ -155,7 +155,8 @@ We produce a bunch of interesting packages for Contentful. You might want to che
 * **Contentful Lib Helpers** ([GitHub](https://github.com/AtidaTech/contentful-lib-helpers/) and [NpmJS](https://www.npmjs.com/package/contentful-lib-helpers)): Utility Library for Contentful CMS.
 * **Contentful CLI Export** ([GitHub](https://github.com/AtidaTech/contentful-cli-export/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-export)): Simplifies making Backup of your Environment. 
 * **Contentful CLI Migrations** ([GitHub](https://github.com/AtidaTech/contentful-cli-migrations/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-migrations)): Automating Contentful Migrations.
-* **Contentful CLI Release** ([GitHub](https://github.com/AtidaTech/contentful-cli-release/) and [NpmJS](https://www.npmjs.com/package/contentful-cli-release)): Easy Environments sync at deployment.
+
+[//]: # (* **Contentful CLI Release** &#40;[GitHub]&#40;https://github.com/AtidaTech/contentful-cli-release/&#41; and [NpmJS]&#40;https://www.npmjs.com/package/contentful-cli-release&#41;&#41;: Easy Environments sync at deployment.)
 
 [//]: # (* **Contentful CLI Sync** &#40;[GitHub]&#40;https://github.com/AtidaTech/contentful-cli-sync/&#41; and [NpmJS]&#40;https://www.npmjs.com/package/contentful-cli-sync&#41;&#41;: Contentful tool to sync data across Spaces and Environments.)
 
