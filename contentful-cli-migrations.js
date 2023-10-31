@@ -389,8 +389,16 @@ async function getEnvironment(parsedArguments) {
  * Get the value of the latest successful migration from the Counter Entry
  *
  * @param {import("contentful-management/dist/typings/entities/environment").Environment} environmentSingleton - The Contentful environment object.
- * @param {Object} parsedArguments - The script arguments, containing the counter entry-id information
-
+ * @param {Object} parsedArguments
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.rootDestinationFolder - The folder containing the migrations
+ * @property {string} parsedArguments.counterEntryId - The entry ID storing the counter.
+ * @property {string} parsedArguments.counterFieldId - The field ID to retrieve the latest ran migration.
+ * @property {string} parsedArguments.counterLocale - The locale of the field to look for.
+ * @property {boolean} parsedArguments.forceYes - If it should run all the migrations.
+ * @property {boolean} parsedArguments.shouldInitialise - If it should create the content-type and entry for the Counter.
  * @return {Promise<number>}
  */
 async function getCounter(environmentSingleton, parsedArguments) {
