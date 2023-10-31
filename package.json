@@ -1,6 +1,6 @@
 {
   "name": "contentful-cli-migrations",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "type": "module",
   "description": "Contentful CLI Migration Tool",
   "homepage": "https://github.com/AtidaTech/contentful-cli-migrations",
@@ -22,7 +22,7 @@
     "contentful-cli-migrations": "./contentful-cli-migrations.js"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "async": "^3.2.2",
-    "contentful-lib-helpers": ">=0.2.1",
+    "contentful-lib-helpers": ">=0.3.0",
     "contentful-management": ">7.50.0",
     "contentful-migration": "^4.9.4",
     "dotenv": ">=10.0.0",

@@ -1,12 +1,13 @@
+.devcontainer/devcontainer.json
+.vscode/settings.json
 build/*
-node_modules/*
 export*
 export/
 export/*
 migrations/
 migrations/*
-.env
-.env*
+node_modules/*
+.DS_Store
+.env.*
 test.js
 test*.js
-.DS_Store
