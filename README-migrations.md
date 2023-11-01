@@ -346,7 +346,8 @@ For most of the use cases you might see migrations with or without async, howeve
 function as `async` when using this tool, since the call to the scripts are all performed using `await`. In addition,
 using `async` allows to include other functions, and be sure that everything is executed in the correct order.
 
-If you are still not convinced, you can read this article on [5 Reasons Why Javascript async/await wins over promises](https://dev.to/deadwin19/5-reasons-why-javascript-async-await-over-promises-1if3).
+If you are still not convinced, you can read this article on 
+[5 Reasons Why Javascript async/await wins over promises](https://dev.to/deadwin19/5-reasons-why-javascript-async-await-over-promises-1if3).
 
 Another best practice is to add annotations to your migrations. In this way you will most likely unlock your 
 editor capabilities to help you autocomplete the different functions (like `createContentType`, `editContentType`, and 
@@ -514,7 +515,8 @@ very dangerous. And it is somehow different from what we have seen before, for t
    abort the migration (or it fails), the modified data will still remain modified. So when editing or adding values,
    we should always use some sort of idempotent action (like adding the full name to a new field from first or last name).
 
-See in details `{ makeRequest }` on the official documentation: https://github.com/contentful/contentful-migration/blob/master/README.md#context
+See in details `{ makeRequest }` on the official documentation: 
+https://github.com/contentful/contentful-migration/blob/master/README.md#context
 
 If you want to see the makeRequest in action, try this:
 

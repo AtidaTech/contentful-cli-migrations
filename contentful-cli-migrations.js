@@ -8,18 +8,18 @@ const DEFAULT_FIRST_MIGRATION = '0001-create-counter-content-type.cjs'
 
 ;(async function main() {
   try {
-    const localeWorkingDir = process.cwd()
+    const localWorkingDir = process.cwd()
     const scriptDirectory = await getDirNamePath()
 
-    const envValues = await getEnvValues(localeWorkingDir, scriptDirectory)
-    const parsedArguments = await parseArguments(localeWorkingDir, envValues)
+    const envValues = await getEnvValues(localWorkingDir, scriptDirectory)
+    const parsedArguments = await parseArguments(localWorkingDir, envValues)
     const environmentSingleton = await getEnvironment(parsedArguments)
     console.log(
       '##/INFO: Applying migrations to environment-id: ' +
         environmentSingleton?.sys?.id
     )
 
-    let migrationArray = []
+    let migrationArray
     let latestMigrationNumber = 0
 
     if (parsedArguments?.shouldInitialise) {
@@ -58,8 +58,8 @@ const DEFAULT_FIRST_MIGRATION = '0001-create-counter-content-type.cjs'
 /**
  * Reads environment values from .env files.
  *
- * @param {string} localWorkingDir - The directory path where the .env files are located.
- * @param {string} scriptDirectory - The directory path where the library is installed
+ * @param {string} localWorkingDir - The directory path where the library is located.
+ * @param {string} scriptDirectory - The directory path where the script is running.
  * @return {Promise<object>} The environment values.
  * @property {string} CMS_MANAGEMENT_TOKEN - The CMA token for Contentful.
  * @property {string} CMS_SPACE_ID - The Space ID.
@@ -92,12 +92,12 @@ async function getEnvValues(localWorkingDir, scriptDirectory) {
  *
  * @param {string} rootFolder - The directory path where the .env files are located.
  * @param {Object} envValues - The .env values loaded.
- * @property {string} CMS_MANAGEMENT_TOKEN - The CMA token for Contentful.
- * @property {string} CMS_SPACE_ID - The Space ID.
- * @property {string} CMS_MIGRATIONS_DIR - The folder where the migration scripts are.
- * @property {string} CMS_MIGRATIONS_COUNTER_ID - The entry-id used for the counter
- * @property {string} CMS_MIGRATIONS_COUNTER_FIELD - The field in that entry that will store the actual counter
- * @property {string} CMS_MIGRATIONS_COUNTER_LOCALE - The locale to look for in that field
+ * @property {string} envValues.CMS_MANAGEMENT_TOKEN - The CMA token for Contentful.
+ * @property {string} envValues.CMS_SPACE_ID - The Space ID.
+ * @property {string} envValues.CMS_MIGRATIONS_DIR - The folder where the migration scripts are.
+ * @property {string} envValues.CMS_MIGRATIONS_COUNTER_ID - The entry-id used for the counter
+ * @property {string} envValues.CMS_MIGRATIONS_COUNTER_FIELD - The field in that entry that will store the actual counter
+ * @property {string} envValues.CMS_MIGRATIONS_COUNTER_LOCALE - The locale to look for in that field
  * @returns {Promise<object>} The initial settings.
  * @property {string} managementToken - The CMS Management Token.
  * @property {string} spaceId - The CMS Space ID.
@@ -106,7 +106,7 @@ async function getEnvValues(localWorkingDir, scriptDirectory) {
  * @property {string} counterEntryId - The entry ID storing the counter.
  * @property {string} counterFieldId - The field ID to retrieve the latest ran migration.
  * @property {string} counterLocale - The locale of the field to look for.
- * @property {boolean} forceYes - If should run all the migrations.
+ * @property {boolean} forceYes - If it should run all the migrations.
  * @property {boolean} shouldInitialise - If it should create the content-type and entry for the Counter.
  *
  * @throws {Error} If '--environment-id' or '--to' are not provided or if '--management-token' or '--mt' are duplicated.
@@ -114,12 +114,12 @@ async function getEnvValues(localWorkingDir, scriptDirectory) {
 async function parseArguments(rootFolder, envValues) {
   const minimist = (await import('minimist')).default
 
-  const parsedArgs = minimist(process.argv.slice(2))
-  await checkArgs(parsedArgs)
+  const parsedArguments = minimist(process.argv.slice(2))
+  await checkArgs(parsedArguments)
 
   const {
     'space-id': spaceId = envValues?.CMS_SPACE_ID ?? PLACEHOLDER_SPACE_ID,
-    'management-token': managementToken = parsedArgs['mt'] ??
+    'management-token': managementToken = parsedArguments['mt'] ??
       envValues?.CMS_MANAGEMENT_TOKEN ??
       PLACEHOLDER_MANAGEMENT_TOKEN,
     'counter-id': counterEntryId = envValues?.CMS_MIGRATIONS_COUNTER_ID,
@@ -129,15 +129,15 @@ async function parseArguments(rootFolder, envValues) {
         DEFAULT_LOCALE,
     'migrations-dir': migrationsDir = envValues?.CMS_MIGRATIONS_DIR ??
       DEFAULT_MIGRATIONS_DIR
-  } = parsedArgs
+  } = parsedArguments
 
   const rootDestinationFolder = await getDestinationFolder(
     rootFolder,
     migrationsDir,
-    parsedArgs
+    parsedArguments
   )
 
-  const environmentId = parsedArgs.to || parsedArgs['environment-id']
+  const environmentId = parsedArguments?.to || parsedArguments['environment-id']
   if (!environmentId) {
     console.error('@@/ERROR: An environment-id should be specified')
     process.exit(1)
@@ -151,38 +151,43 @@ async function parseArguments(rootFolder, envValues) {
     counterEntryId,
     counterFieldId,
     counterLocale,
-    forceYes: parsedArgs.hasOwnProperty('force-yes'),
-    shouldInitialise: parsedArgs.hasOwnProperty('initialise')
+    forceYes: parsedArguments.hasOwnProperty('force-yes'),
+    shouldInitialise: parsedArguments.hasOwnProperty('initialise')
   }
 }
 
 /**
  * This function checks the arguments passed in the command line.
  *
- * @param {Object} parsedArgs - The object that contains the parsed command line arguments.
- * @property {string} managementToken - The CMS Management Token.
- * @property {string} spaceId - The CMS Space ID.
- * @property {string} environmentId - The CMS Environment ID.
- * @property {string} rootDestinationFolder - The folder containing the migrations
- * @property {string} counterEntryId - The entry ID storing the counter.
- * @property {string} counterFieldId - The field ID to retrieve the latest ran migration.
- * @property {string} counterLocale - The locale of the field to look for.
- * @property {boolean} forceYes - If should run all the migrations.
- * @property {boolean} shouldInitialise - If it should create the content-type and entry for the Counter.
+ * @param {Object} parsedArguments - The object that contains the parsed command line arguments.
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.rootDestinationFolder - The folder containing the migrations
+ * @property {string} parsedArguments.counterEntryId - The entry ID storing the counter.
+ * @property {string} parsedArguments.counterFieldId - The field ID to retrieve the latest ran migration.
+ * @property {string} parsedArguments.counterLocale - The locale of the field to look for.
+ * @property {boolean} parsedArguments.forceYes - If it should run all the migrations.
+ * @property {boolean} parsedArguments.shouldInitialise - If it should create the content-type and entry for the Counter.
  * @returns {Promise<object>} An object containing the evaluated command line arguments.
  *
  * @throws {Error} If both 'to' and 'environment-id' options are specified or if neither is specified.
  * @throws {Error} If both 'management-token' and 'mt' options are specified.
  */
-async function checkArgs(parsedArgs) {
-  if (!(Boolean(parsedArgs.to) ^ Boolean(parsedArgs['environment-id']))) {
+async function checkArgs(parsedArguments) {
+  if (
+    !(Boolean(parsedArguments.to) ^ Boolean(parsedArguments['environment-id']))
+  ) {
     console.error(
       "@@/ERROR: Only one of the two options '--environment-id' or '--to' should be specified"
     )
     process.exit(1)
   }
 
-  if (Boolean(parsedArgs['management-token']) && Boolean(parsedArgs.mt)) {
+  if (
+    Boolean(parsedArguments['management-token']) &&
+    Boolean(parsedArguments.mt)
+  ) {
     console.error(
       "@@/ERROR: Only one of the two options '--management-token' or '--mt' can be specified"
     )
@@ -195,30 +200,35 @@ async function checkArgs(parsedArgs) {
  *
  * @param {string} rootFolder - The directory path where the script is being executed.
  * @param {string} cmsMigrationsDir - The CMS Default Migrations Directory.
- * @param {Object} parsedArgs - The object that contains the parsed command line arguments.
- * @property {string} managementToken - The CMS Management Token.
- * @property {string} spaceId - The CMS Space ID.
- * @property {string} environmentId - The CMS Environment ID.
- * @property {string} rootDestinationFolder - The folder containing the migrations
- * @property {string} counterEntryId - The entry ID storing the counter.
- * @property {string} counterFieldId - The field ID to retrieve the latest ran migration.
- * @property {string} counterLocale - The locale of the field to look for.
- * @property {boolean} forceYes - If should run all the migrations.
- * @property {boolean} shouldInitialise - If it should create the content-type and entry for the Counter.
+ * @param {Object} parsedArguments - The object that contains the parsed command line arguments.
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.rootDestinationFolder - The folder containing the migrations
+ * @property {string} parsedArguments.counterEntryId - The entry ID storing the counter.
+ * @property {string} parsedArguments.counterFieldId - The field ID to retrieve the latest ran migration.
+ * @property {string} parsedArguments.counterLocale - The locale of the field to look for.
+ * @property {boolean} parsedArguments.forceYes - If it should run all the migrations.
+ * @property {boolean} parsedArguments.shouldInitialise - If it should create the content-type and entry for the Counter.
  *
  * @returns {Promise<string>} The path of the evaluated destination folder.
  * @property {string} destinationFolder - The destination folder for the export.
  *
  * @throws {Error} If the destination folder does not exist or is not accessible.
  */
-async function getDestinationFolder(rootFolder, cmsMigrationsDir, parsedArgs) {
+async function getDestinationFolder(
+  rootFolder,
+  cmsMigrationsDir,
+  parsedArguments
+) {
   const fileSystem = await import('fs')
   const path = await import('path')
 
   const defaultExportDirectory = path.join(rootFolder, cmsMigrationsDir)
 
   let destinationFolder =
-    path.resolve(parsedArgs['migrations-dir'] || defaultExportDirectory) + '/'
+    path.resolve(parsedArguments['migrations-dir'] || defaultExportDirectory) +
+    '/'
 
   // Create destination folder if not present
   if (!fileSystem.existsSync(destinationFolder)) {
@@ -252,18 +262,18 @@ async function getDirNamePath() {
 }
 
 /**
- * Create a First Migration if empty Space
+ * Create a First Migration if empty Environment
  *
  * @param {Object} parsedArguments
- * @property {string} managementToken - The CMS Management Token.
- * @property {string} spaceId - The CMS Space ID.
- * @property {string} environmentId - The CMS Environment ID.
- * @property {string} rootDestinationFolder - The folder containing the migrations
- * @property {string} counterEntryId - The entry ID storing the counter.
- * @property {string} counterFieldId - The field ID to retrieve the latest ran migration.
- * @property {string} counterLocale - The locale of the field to look for.
- * @property {boolean} forceYes - If should run all the migrations.
- * @property {boolean} shouldInitialise - If it should create the content-type and entry for the Counter.
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.rootDestinationFolder - The folder containing the migrations
+ * @property {string} parsedArguments.counterEntryId - The entry ID storing the counter.
+ * @property {string} parsedArguments.counterFieldId - The field ID to retrieve the latest ran migration.
+ * @property {string} parsedArguments.counterLocale - The locale of the field to look for.
+ * @property {boolean} parsedArguments.forceYes - If it should run all the migrations.
+ * @property {boolean} parsedArguments.shouldInitialise - If it should create the content-type and entry for the Counter.
  * @return {Promise<void>}
  */
 async function createFirstMigration(parsedArguments) {
@@ -345,9 +355,9 @@ async function createCounterEntry(environmentSingleton) {
  * Check if the destination environment exists before running the migration(s)
  *
  * @param {Object} parsedArguments
- * @property {string} managementToken - The CMS Management Token.
- * @property {string} spaceId - The CMS Space ID.
- * @property {string} environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
  * @returns {Promise<import("contentful-management/dist/typings/entities/environment").Environment|null>} - A Promise that resolves with the environment object, or `null` if not found.
  */
 async function getEnvironment(parsedArguments) {
@@ -379,16 +389,16 @@ async function getEnvironment(parsedArguments) {
  * Get the value of the latest successful migration from the Counter Entry
  *
  * @param {import("contentful-management/dist/typings/entities/environment").Environment} environmentSingleton - The Contentful environment object.
- * @param {Object} parsedArguments - The script arguments, containing the counter entry-id information
- * @property {string} managementToken - The CMS Management Token.
- * @property {string} spaceId - The CMS Space ID.
- * @property {string} environmentId - The CMS Environment ID.
- * @property {string} rootDestinationFolder - The folder containing the migrations
- * @property {string} counterEntryId - The entry ID storing the counter.
- * @property {string} counterFieldId - The field ID to retrieve the latest ran migration.
- * @property {string} counterLocale - The locale of the field to look for.
- * @property {boolean} forceYes - If should run all the migrations.
- * @property {boolean} shouldInitialise - If it should create the content-type and entry for the Counter.
+ * @param {Object} parsedArguments
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.rootDestinationFolder - The folder containing the migrations
+ * @property {string} parsedArguments.counterEntryId - The entry ID storing the counter.
+ * @property {string} parsedArguments.counterFieldId - The field ID to retrieve the latest ran migration.
+ * @property {string} parsedArguments.counterLocale - The locale of the field to look for.
+ * @property {boolean} parsedArguments.forceYes - If it should run all the migrations.
+ * @property {boolean} parsedArguments.shouldInitialise - If it should create the content-type and entry for the Counter.
  * @return {Promise<number>}
  */
 async function getCounter(environmentSingleton, parsedArguments) {
@@ -428,15 +438,15 @@ async function getCounter(environmentSingleton, parsedArguments) {
  * Parses the migrations to run based on the latest migration number.
  *
  * @param {Object} parsedArguments - The script arguments.
- * @property {string} managementToken - The CMS Management Token.
- * @property {string} spaceId - The CMS Space ID.
- * @property {string} environmentId - The CMS Environment ID.
- * @property {string} rootDestinationFolder - The folder containing the migrations
- * @property {string} counterEntryId - The entry ID storing the counter.
- * @property {string} counterFieldId - The field ID to retrieve the latest ran migration.
- * @property {string} counterLocale - The locale of the field to look for.
- * @property {boolean} forceYes - If should run all the migrations.
- * @property {boolean} shouldInitialise - If it should create the content-type and entry for the Counter.
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.rootDestinationFolder - The folder containing the migrations
+ * @property {string} parsedArguments.counterEntryId - The entry ID storing the counter.
+ * @property {string} parsedArguments.counterFieldId - The field ID to retrieve the latest ran migration.
+ * @property {string} parsedArguments.counterLocale - The locale of the field to look for.
+ * @property {boolean} parsedArguments.forceYes - If it should run all the migrations.
+ * @property {boolean} parsedArguments.shouldInitialise - If it should create the content-type and entry for the Counter.
  * @param {number} latestMigrationNumber - The latest migration number.
  * @returns {Promise<string[]>} An array of migrations to run.
  */
@@ -489,14 +499,15 @@ async function parseMigrationsToRun(parsedArguments, latestMigrationNumber) {
  *
  * @param {import("contentful-management/dist/typings/entities/environment").Environment} environmentSingleton - The Contentful environment object.
  * @param {Object} parsedArguments - The script arguments.
- * @property {string} spaceId - The CMS Space ID.
- * @property {string} environmentId - The CMS Environment ID.
- * @property {string} rootDestinationFolder - The folder containing the migrations
- * @property {string} counterEntryId - The entry ID storing the counter.
- * @property {string} counterFieldId - The field ID to retrieve the latest ran migration.
- * @property {string} counterLocale - The locale of the field to look for.
- * @property {boolean} forceYes - If should run all the migrations.
- * @property {boolean} shouldInitialise - If it should create the content-type and entry for the Counter.
+ * @property {string} parsedArguments.managementToken - The CMS Management Token.
+ * @property {string} parsedArguments.spaceId - The CMS Space ID.
+ * @property {string} parsedArguments.environmentId - The CMS Environment ID.
+ * @property {string} parsedArguments.rootDestinationFolder - The folder containing the migrations
+ * @property {string} parsedArguments.counterEntryId - The entry ID storing the counter.
+ * @property {string} parsedArguments.counterFieldId - The field ID to retrieve the latest ran migration.
+ * @property {string} parsedArguments.counterLocale - The locale of the field to look for.
+ * @property {boolean} parsedArguments.forceYes - If it should run all the migrations.
+ * @property {boolean} parsedArguments.shouldInitialise - If it should create the content-type and entry for the Counter.
  * @param {number} latestMigrationNumber - The latest migration number.
  * @param {string[]} migrationArray - An array of migrations to run.
  * @returns {Promise<void>}
