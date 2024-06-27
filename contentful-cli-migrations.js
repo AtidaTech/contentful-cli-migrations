@@ -579,9 +579,8 @@ async function performMigrations(
               parsedArguments?.counterEntryId
             )
 
-            entrySavingCounter.fields[fieldId][
-              fieldLocale
-            ] = `${latestMigrationNumber}`
+            entrySavingCounter.fields[fieldId][fieldLocale] =
+              `${latestMigrationNumber}`
 
             entrySavingCounter
               .update()

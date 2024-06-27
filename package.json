@@ -1,6 +1,6 @@
 {
   "name": "contentful-cli-migrations",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "type": "module",
   "description": "Contentful CLI Migration Tool",
   "homepage": "https://github.com/AtidaTech/contentful-cli-migrations",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "async": "^3.2.2",
-    "contentful-lib-helpers": ">=0.3.2",
+    "contentful-lib-helpers": ">=0.3.4",
     "contentful-management": ">7.50.0",
     "contentful-migration": "^4.9.4",
     "dotenv": ">=10.0.0",
