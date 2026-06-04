@@ -26,7 +26,7 @@ const DEFAULT_FIRST_MIGRATION = '0001-create-counter-content-type.cjs'
       await createFirstMigration(parsedArguments)
       migrationArray = [DEFAULT_FIRST_MIGRATION]
       console.log(
-        '##/INFO: This is the fist run of the script. We will create the Counter content-type.'
+        '##/INFO: This is the first run of the script. We will create the Counter content-type.'
       )
     } else {
       latestMigrationNumber = await getCounter(
@@ -50,8 +50,10 @@ const DEFAULT_FIRST_MIGRATION = '0001-create-counter-content-type.cjs'
       latestMigrationNumber,
       migrationArray
     )
+    process.exit(0)
   } catch (error) {
     console.error('@@/ERROR:', error)
+    process.exit(1)
   }
 })()
 
@@ -69,7 +71,8 @@ const DEFAULT_FIRST_MIGRATION = '0001-create-counter-content-type.cjs'
  * @property {string} CMS_MIGRATIONS_COUNTER_LOCALE - The locale to look for in that field
  */
 async function getEnvValues(localWorkingDir, scriptDirectory) {
-  const fileSystem = await import('fs')
+  /** @type {typeof import('node:fs')} */
+  const fileSystem = await import('node:fs')
   const { config } = await import('dotenv')
 
   const envDataFromPath = path =>
@@ -221,8 +224,10 @@ async function getDestinationFolder(
   cmsMigrationsDir,
   parsedArguments
 ) {
-  const fileSystem = await import('fs')
-  const path = await import('path')
+  /** @type {typeof import('node:fs')} */
+  const fileSystem = await import('node:fs')
+  /** @type {typeof import('node:path')} */
+  const path = await import('node:path')
 
   const defaultExportDirectory = path.join(rootFolder, cmsMigrationsDir)
 
@@ -254,8 +259,8 @@ async function getDestinationFolder(
  * @return {Promise<string>} The path of the current directory.
  */
 async function getDirNamePath() {
-  const { fileURLToPath } = await import('url')
-  const { dirname } = await import('path')
+  const { fileURLToPath } = await import('node:url')
+  const { dirname } = await import('node:path')
 
   const __filename = fileURLToPath(import.meta.url)
   return dirname(__filename)
@@ -277,7 +282,8 @@ async function getDirNamePath() {
  * @return {Promise<void>}
  */
 async function createFirstMigration(parsedArguments) {
-  const fileSystem = await import('fs')
+  /** @type {typeof import('node:fs')} */
+  const fileSystem = await import('node:fs')
   const firstMigrationName =
     parsedArguments?.rootDestinationFolder + DEFAULT_FIRST_MIGRATION
 
@@ -319,7 +325,7 @@ async function createFirstMigration(parsedArguments) {
 /**
  * Create a Counter entry if missing
  *
- * @param {import("contentful-management/dist/typings/entities/environment").Environment} environmentSingleton - The Contentful environment object.
+ * @param {import("contentful-management/dist/types/entities/environment").Environment} environmentSingleton - The Contentful environment object.
  * @return {Promise<void>}
  */
 async function createCounterEntry(environmentSingleton) {
@@ -358,10 +364,10 @@ async function createCounterEntry(environmentSingleton) {
  * @property {string} parsedArguments.managementToken - The CMS Management Token.
  * @property {string} parsedArguments.spaceId - The CMS Space ID.
  * @property {string} parsedArguments.environmentId - The CMS Environment ID.
- * @returns {Promise<import("contentful-management/dist/typings/entities/environment").Environment|null>} - A Promise that resolves with the environment object, or `null` if not found.
+ * @returns {Promise<import("contentful-management/dist/types/entities/environment").Environment|null>} - A Promise that resolves with the environment object, or `null` if not found.
  */
 async function getEnvironment(parsedArguments) {
-  const contentfulManagement = (await import('contentful-management')).default
+  const contentfulManagement = await import('contentful-management')
   const lib = await import('contentful-lib-helpers')
 
   const environmentSingleton = await lib.getEnvironment(
@@ -388,7 +394,7 @@ async function getEnvironment(parsedArguments) {
 /**
  * Get the value of the latest successful migration from the Counter Entry
  *
- * @param {import("contentful-management/dist/typings/entities/environment").Environment} environmentSingleton - The Contentful environment object.
+ * @param {import("contentful-management/dist/types/entities/environment").Environment} environmentSingleton - The Contentful environment object.
  * @param {Object} parsedArguments
  * @property {string} parsedArguments.managementToken - The CMS Management Token.
  * @property {string} parsedArguments.spaceId - The CMS Space ID.
@@ -451,7 +457,8 @@ async function getCounter(environmentSingleton, parsedArguments) {
  * @returns {Promise<string[]>} An array of migrations to run.
  */
 async function parseMigrationsToRun(parsedArguments, latestMigrationNumber) {
-  const fileSystem = await import('fs')
+  /** @type {typeof import('node:fs')} */
+  const fileSystem = await import('node:fs')
   const folderMigrationScript = parsedArguments?.rootDestinationFolder
 
   const allFiles = fileSystem.readdirSync(folderMigrationScript)
@@ -497,7 +504,7 @@ async function parseMigrationsToRun(parsedArguments, latestMigrationNumber) {
 /**
  * Performs the Contentful migrations.
  *
- * @param {import("contentful-management/dist/typings/entities/environment").Environment} environmentSingleton - The Contentful environment object.
+ * @param {import("contentful-management/dist/types/entities/environment").Environment} environmentSingleton - The Contentful environment object.
  * @param {Object} parsedArguments - The script arguments.
  * @property {string} parsedArguments.managementToken - The CMS Management Token.
  * @property {string} parsedArguments.spaceId - The CMS Space ID.
@@ -518,8 +525,10 @@ async function performMigrations(
   latestMigrationNumber,
   migrationArray
 ) {
-  const fileSystem = await import('fs')
-  const path = await import('path')
+  /** @type {typeof import('node:fs')} */
+  const fileSystem = await import('node:fs')
+  /** @type {typeof import('node:path')} */
+  const path = await import('node:path')
   const customAsync = await import('async')
   const { runMigration } = await import('contentful-migration')
 
@@ -582,10 +591,12 @@ async function performMigrations(
             entrySavingCounter.fields[fieldId][fieldLocale] =
               `${latestMigrationNumber}`
 
-            entrySavingCounter
-              .update()
-              .then(callback())
-              .catch(e => console.error('@@/ERROR: ' + e))
+            try {
+              await entrySavingCounter.update()
+              callback()
+            } catch (e) {
+              console.error('@@/ERROR: ' + e)
+            }
           } else {
             await createCounterEntry(environmentSingleton)
           }

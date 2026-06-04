@@ -4,18 +4,14 @@
   "extends": [
     "plugin:import/errors",
     "plugin:import/warnings",
-    "plugin:prettier/recommended",
-    "plugin:jsx-a11y/recommended"
+    "plugin:prettier/recommended"
   ],
   "env": {
-    "jest": true
+    "node": true
   },
   "plugins": [
     "@typescript-eslint",
-    "react",
-    "react-hooks",
-    "import",
-    "jsx-a11y"
+    "import"
   ],
   "rules": {
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
@@ -29,17 +25,7 @@
         "js": "always"
       }
     ],
-    "import/no-unresolved": "off",
-    "jsx-a11y/anchor-is-valid": [
-      "error",
-      {
-        "components": ["Link"],
-        "specialLink": ["hrefLeft", "hrefRight"],
-        "aspects": ["invalidHref", "preferButton"]
-      }
-    ], // next/link api incompatible with no-href aspect
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "import/no-unresolved": "off"
   },
   "settings": {
     "import/parser": "@typescript-eslint/parser",
@@ -66,7 +52,7 @@
             "argsIgnorePattern": "^_"
           }
         ],
-        "@typescript-eslint/no-extra-semi": "off" // conflicts with prettier
+        "@typescript-eslint/no-extra-semi": "off"
       }
     }
   ]
