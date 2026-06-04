@@ -61,7 +61,7 @@ bun add contentful-cli-migrations
 * `node` >= 22
 * `npm` >= 10.5.0
 * `contentful-management` >= 12.x.x
-* `contentful-migration` ^4.23.2
+* `contentful-migration` >= 5.0.0
 * [contentful-lib-helpers](https://www.npmjs.com/package/contentful-lib-helpers) >= 1.0.0
 
 
