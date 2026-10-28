@@ -76,7 +76,7 @@ async function getEnvValues(localWorkingDir, scriptDirectory) {
   const { config } = await import('dotenv')
 
   const envDataFromPath = path =>
-    fileSystem.existsSync(path) ? config({ path }).parsed : {}
+    fileSystem.existsSync(path) ? config({ path, quiet: true }).parsed : {}
 
   const paths = [
     `${scriptDirectory}/../../.env`,
@@ -154,8 +154,8 @@ async function parseArguments(rootFolder, envValues) {
     counterEntryId,
     counterFieldId,
     counterLocale,
-    forceYes: parsedArguments.hasOwnProperty('force-yes'),
-    shouldInitialise: parsedArguments.hasOwnProperty('initialise')
+    forceYes: Object.hasOwn(parsedArguments, 'force-yes'),
+    shouldInitialise: Object.hasOwn(parsedArguments, 'initialise')
   }
 }
 
@@ -428,7 +428,8 @@ async function getCounter(environmentSingleton, parsedArguments) {
         console.log('##/INFO: Counter entry is being initialised...')
       } catch (e) {
         throw new Error(
-          'Counter entry is invalid! Please check entry-id, field-id and locale in your configuration'
+          'Counter entry is invalid! Please check entry-id, field-id and locale in your configuration',
+          { cause: e }
         )
       }
     }
@@ -525,91 +526,14 @@ async function performMigrations(
   latestMigrationNumber,
   migrationArray
 ) {
-  /** @type {typeof import('node:fs')} */
-  const fileSystem = await import('node:fs')
-  /** @type {typeof import('node:path')} */
-  const path = await import('node:path')
-  const customAsync = await import('async')
   const { runMigration } = await import('contentful-migration')
-
-  const folderMigrationScript =
-    parsedArguments?.rootDestinationFolder ?? DEFAULT_MIGRATIONS_DIR
-
-  if (migrationArray.length === 0) {
-    console.log(
-      '##/INFO: Your environment is already up to date to the latest migration'
-    )
-    return
-  }
-
-  // Loop and run migrations
-  await customAsync.eachSeries(
+  const { runMigrations } = await import('./lib/run-migrations.js')
+  await runMigrations(
+    environmentSingleton,
+    parsedArguments,
+    latestMigrationNumber,
     migrationArray,
-    function (migrationScript, callback) {
-      let options = {
-        spaceId: parsedArguments?.spaceId,
-        environmentId: environmentSingleton?.sys?.id,
-        accessToken: parsedArguments?.managementToken,
-        yes: parsedArguments?.forceYes
-      }
-
-      process.stdin.on('keypress', function (ch, key) {
-        if (key && key.name === 'n') {
-          process.exit(1)
-        }
-      })
-
-      if (
-        fileSystem.readFileSync(folderMigrationScript + migrationScript)
-          .length === 0
-      ) {
-        console.error('@@/ERROR: The following migration is empty')
-        console.error('@@/ERROR: ' + folderMigrationScript + migrationScript)
-        process.exit(1)
-      }
-
-      runMigration({
-        ...options,
-        ...{
-          filePath: path.resolve(folderMigrationScript + migrationScript)
-        }
-      })
-        .then(async () => {
-          console.log('##/INFO: Migration ' + migrationScript + ' Done!')
-
-          if (!parsedArguments?.shouldInitialise) {
-            // Update counter value
-            latestMigrationNumber++
-
-            // Write new Count into Entry
-            const fieldId = parsedArguments?.counterFieldId
-            const fieldLocale = parsedArguments?.counterLocale
-            const entrySavingCounter = await environmentSingleton.getEntry(
-              parsedArguments?.counterEntryId
-            )
-
-            entrySavingCounter.fields[fieldId][fieldLocale] =
-              `${latestMigrationNumber}`
-
-            try {
-              await entrySavingCounter.update()
-              callback()
-            } catch (e) {
-              console.error('@@/ERROR: ' + e)
-            }
-          } else {
-            await createCounterEntry(environmentSingleton)
-          }
-        })
-        .catch(e =>
-          console.error(
-            '@@/ERROR ' +
-              e +
-              ' - while running the migration: ' +
-              folderMigrationScript +
-              migrationScript
-          )
-        )
-    }
+    runMigration,
+    createCounterEntry
   )
 }

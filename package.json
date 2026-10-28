@@ -1,6 +1,6 @@
 {
   "name": "contentful-cli-migrations",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "Contentful CLI Migration Tool",
   "homepage": "https://github.com/AtidaTech/contentful-cli-migrations",
@@ -22,7 +22,8 @@
     "contentful-cli-migrations": "./contentful-cli-migrations.js"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24.22.1",
+    "npm": ">=12.2.1"
   },
   "repository": {
     "type": "git",
@@ -31,32 +32,31 @@
   "author": "Atida <hello@atida.com>",
   "license": "MIT",
   "scripts": {
-    "lint": "node_modules/eslint/bin/eslint.js --resolve-plugins-relative-to ./ --ext js,mjs,cjs,jsx,ts,tsx ./contentful-cli-migrations.js",
-    "lint-fix": "node_modules/eslint/bin/eslint.js --resolve-plugins-relative-to ./ --ext js,mjs,cjs,jsx,ts,tsx ./contentful-cli-migrations.js --fix"
+    "lint": "eslint contentful-cli-migrations.js lib test scripts eslint.config.js",
+    "lint-fix": "eslint contentful-cli-migrations.js lib test scripts eslint.config.js --fix",
+    "format:check": "prettier --check contentful-cli-migrations.js lib test scripts eslint.config.js",
+    "test": "node --test test/*.test.js",
+    "check": "npm run lint && npm test && node scripts/check-package.js",
+    "prepublishOnly": "npm run check && npm audit --audit-level=low && node scripts/check-package.js --release"
   },
   "dependencies": {
-    "async": "^3.2.2",
-    "contentful-lib-helpers": ">=1.1.0",
-    "contentful-management": ">=12.18.2 <13.0.0",
-    "contentful-migration": ">=5.1.0",
-    "dotenv": ">=10.0.0",
-    "follow-redirects": ">=1.16.0",
-    "minimist": "^1.2.5"
+    "contentful-lib-helpers": "^2.0.0",
+    "contentful-management": "^12.20.0",
+    "contentful-migration": "^5.1.1",
+    "dotenv": "^18.0.9",
+    "follow-redirects": "^1.16.2",
+    "minimist": "^1.2.8"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "eslint": "^8.35.0",
-    "eslint-config-prettier": "^8.7.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-prettier": "^5.0.0",
-    "prettier": "^3.0.0",
-    "typescript": "^4.4.3",
-    "word-wrap": "^1.2.5"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10"
   },
-  "overrides": {
-    "contentful-migration": {
-      "uuid": "^11.1.1"
-    }
-  }
+  "packageManager": "npm@12.2.1",
+  "files": [
+    "contentful-cli-migrations.js",
+    "CHANGELOG.md",
+    "lib/"
+  ]
 }
