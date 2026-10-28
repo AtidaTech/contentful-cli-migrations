@@ -3,7 +3,7 @@
 {
     "name": "Node.js",
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:0-18-bullseye",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:24-bookworm",
     "features": {
       "ghcr.io/devcontainers-contrib/features/jshint:2": {}
     },
@@ -15,7 +15,7 @@
     // "forwardPorts": [],
   
     // Use 'postCreateCommand' to run commands after the container is created.
-     "postCreateCommand": "npm i",
+     "postCreateCommand": "npm install --global npm@12.2.1 && npm ci",
   
     // Configure tool-specific properties.
     "customizations": {
