@@ -58,5 +58,8 @@
     "contentful-cli-migrations.js",
     "CHANGELOG.md",
     "lib/"
-  ]
+  ],
+  "overrides": {
+    "minimatch": "^11.0.5"
+  }
 }
